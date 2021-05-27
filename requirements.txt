@@ -1,5 +1,3 @@
 opencv-python
 numpy
 pyautogui
-pywin32
-pypiwin32

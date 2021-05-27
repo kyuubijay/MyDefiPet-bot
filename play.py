@@ -3,7 +3,6 @@ import cv2
 # import imutils
 import glob, os, time, pyautogui, math, enum
 import numpy as np
-import win32api, win32con, time
 from datetime import datetime  
 from datetime import timedelta 
 
@@ -27,9 +26,7 @@ class Template(enum.Enum):
 
 def click(p):
     x,y = p
-    win32api.SetCursorPos(p)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
+    pyautogui.click(x, y)
 
 def collect_coins():
     click(INSIDE_PLAY_AREA)
