@@ -17,10 +17,9 @@ NUMBER_OF_PLOT=6
 
 class Template(enum.Enum):
     COIN="img/templates/coin.png"
-    FARM="img/templates/farm2.png"
+    FARM="img/templates/land.png"
     SHOVEL="img/templates/shovel.png"
     CENTER="img/templates/center.png"
-    HARVEST="img/templates/harvest.png"
     POTATO="img/templates/potato.png"
     WHEAT="img/templates/wheat.png"
 
