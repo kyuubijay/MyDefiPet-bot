@@ -127,4 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-img/source/screenshot.png
+img/source/**
