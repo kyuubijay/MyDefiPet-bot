@@ -13,11 +13,14 @@ CENTER_PLAY_AREA=(694+282, 399+214)
 NUMBER_OF_CAGES=4
 NUMBER_OF_PLOT=6
 
+#width/2 - 50
+
 
 class Template(enum.Enum):
     COIN="img/templates/coin.png"
     FARM="img/templates/land.png"
     SHOVEL="img/templates/shovel.png"
+    HARVEST="img/templates/harvest-all.png"
     CENTER="img/templates/center.png"
     POTATO="img/templates/potato.png"
     WHEAT="img/templates/wheat.png"
@@ -55,7 +58,9 @@ def farm():
     if shovel is not None:
         click((shovel[0], shovel[1] + 70))
         time.sleep(1)
-        click(HARVEST_AREA)
+        harvest = detect(Template.HARVEST)
+        if harvest is not None: 
+            click(harvest)
     farm = detect(Template.FARM)
     if farm is not None:
         print(f"farm: {farm}")
