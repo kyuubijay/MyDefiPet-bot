@@ -1,7 +1,6 @@
 from ctypes import pythonapi
 import cv2
-# import imutils
-import glob, os, time, pyautogui, math, enum
+import glob, time, pyautogui, math, enum
 import numpy as np
 from datetime import datetime  
 from datetime import timedelta 
@@ -22,13 +21,13 @@ class Template(enum.Enum):
     CENTER="img/templates/center.png"
     POTATO="img/templates/potato.png"
     WHEAT="img/templates/wheat.png"
+    CORN="img/templates/corn.png"
 
 def click(p):
     x,y = p
     pyautogui.click(x, y)
 
 def collect_coins():
-    click(INSIDE_PLAY_AREA)
     for i in range(NUMBER_OF_CAGES):
         coins = detect(Template.COIN)
         if coins is not None:
@@ -38,29 +37,23 @@ def collect_coins():
             break
 
 def center():
-    click(INSIDE_PLAY_AREA)
     center_of_home = detect(Template.CENTER)
     if center_of_home is None:
         return False
     distance = math.sqrt( ((center_of_home[0]-CENTER_PLAY_AREA[0])**2)+((center_of_home[1]-CENTER_PLAY_AREA[1])**2) )
-    print(f"distance: {distance}")
     if distance > 50:
         x_diff = center_of_home[0] - CENTER_PLAY_AREA[0]
         y_diff = center_of_home[1] - CENTER_PLAY_AREA[1]
         x = INSIDE_PLAY_AREA[0] + -x_diff
         y = INSIDE_PLAY_AREA[1] + -y_diff
         pyautogui.moveTo(INSIDE_PLAY_AREA)
-        # time.sleep(2)
-        # print(f"x, y : {(x, y)}")
-        # print(f"diff: {(x_diff, y_diff)}")
         pyautogui.dragTo(x, y, duration=0.5)
     return True
 
 def farm():
-    click(INSIDE_PLAY_AREA)
     shovel = detect(Template.SHOVEL)
     if shovel is not None:
-        click((shovel[0], shovel[1] + 50))
+        click((shovel[0], shovel[1] + 70))
         time.sleep(1)
         click(HARVEST_AREA)
     farm = detect(Template.FARM)
@@ -71,9 +64,7 @@ def farm():
         if crop is not None:
             for i in range(NUMBER_OF_PLOT):
                 click((crop[0], crop[1] + 120))
-                time.sleep(0.5)
-
-    time.sleep(2)
+                time.sleep(0.2)
 
 def screenshot():
     time.sleep(2)
@@ -87,7 +78,9 @@ def detect(template):
     template_img = template.value
     image = cv2.imread(screenshot())
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    h, w = gray.shape[:2]
+    threshold = 0.9
+    if template == template.SHOVEL:
+        threshold = 0.8
     for file in glob.glob(template_img):
         template_img = cv2.imread(file)
         found = None
@@ -108,18 +101,19 @@ def detect(template):
 
         (_, maxLoc, r) = found
         (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
-        (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
-        
+
         # draw rectangle
-        # cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
-        # cv2.imshow(template.name, image)
-        # cv2.imwrite('output.jpg', image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        # (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
+        # if template == template.SHOVEL or template == template.CORN:
+        #     cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
+        #     cv2.imshow(template.name, image)
+        #     cv2.imwrite('output.jpg', image)
+        #     cv2.waitKey(0)
+        #     cv2.destroyAllWindows()
         
         center = (282+startX + tW//2, 214+startY + tH//2)
         
-        if found[2] > 0.9:
+        if found[2] > threshold:
             print(f"{datetime.now().strftime('%x %X')}::{template.name}::Center: {center}, Factor: {found[2]}")
             return center
         else:
@@ -133,7 +127,6 @@ def play():
         click(OUTSIDE_PLAY_AREA)
 
 while(True):
-    time.sleep(5)
     play()
     # pyautogui.keyDown('alt')
     # time.sleep(.2)
@@ -142,7 +135,7 @@ while(True):
     # pyautogui.keyUp('alt')
     # play()
     print(f"{datetime.now().strftime('%x %X')}::Resting for 5mins. Resuming in {datetime.now() + timedelta(minutes=5)}")
-    time.sleep(300)
+    time.sleep(280)
     # break
 
 
