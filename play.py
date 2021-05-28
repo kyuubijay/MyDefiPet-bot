@@ -129,6 +129,7 @@ def play():
     if center():
         collect_coins()
         farm()
+        click(INSIDE_PLAY_AREA)
         click(OUTSIDE_PLAY_AREA)
 
 while(True):
