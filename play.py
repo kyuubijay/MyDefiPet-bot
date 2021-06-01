@@ -11,7 +11,7 @@ INSIDE_PLAY_AREA=(364, 953)
 HARVEST_AREA=(975, 894)
 CENTER_PLAY_AREA=(694+282, 399+214)
 NUMBER_OF_CAGES=4
-NUMBER_OF_PLOT=6
+NUMBER_OF_PLOT=7
 
 #width/2 - 50
 
@@ -65,11 +65,12 @@ def farm():
     if farm is not None:
         print(f"farm: {farm}")
         click(farm)
-        crop = detect(Template.WHEAT)
+        crop = detect(Template.CORN)
         if crop is not None:
             for i in range(NUMBER_OF_PLOT):
                 click((crop[0], crop[1] + 120))
                 time.sleep(0.2)
+    time.sleep(2)
 
 def screenshot():
     time.sleep(2)
@@ -132,16 +133,20 @@ def play():
         click(INSIDE_PLAY_AREA)
         click(OUTSIDE_PLAY_AREA)
 
+def alttab():
+    pyautogui.keyDown('alt')
+    time.sleep(.2)
+    pyautogui.press('tab')
+    time.sleep(1)
+    pyautogui.keyUp('alt')
+
 while(True):
     play()
-    # pyautogui.keyDown('alt')
-    # time.sleep(.2)
-    # pyautogui.press('tab')
-    # time.sleep(.2)
-    # pyautogui.keyUp('alt')
-    # play()
-    print(f"{datetime.now().strftime('%x %X')}::Resting for 5mins. Resuming in {datetime.now() + timedelta(minutes=5)}")
-    time.sleep(280)
+    alttab()
+    play()
+    alttab()
+    print(f"{datetime.now().strftime('%x %X')}::Resuming in {(datetime.now() + timedelta(seconds=50)).strftime('%x %X')}")
+    time.sleep(10)
     # break
 
 
