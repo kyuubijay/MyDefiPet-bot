@@ -3,7 +3,9 @@ import cv2
 import glob, time, pyautogui, math, enum
 import numpy as np
 from datetime import datetime  
-from datetime import timedelta 
+from datetime import timedelta
+
+from pymsgbox import WARNING 
 
 PLAY_AREA=(282, 214, 1388, 798)
 OUTSIDE_PLAY_AREA=(178, 529)
@@ -25,6 +27,9 @@ class Template(enum.Enum):
     POTATO="img/templates/potato.png"
     WHEAT="img/templates/wheat.png"
     CORN="img/templates/corn.png"
+    OK="img/templates/OK.png"
+    INTERNET="img/templates/internet2.png"
+    WARNING="img/templates/warning.png"
 
 def click(p):
     x,y = p
@@ -80,13 +85,26 @@ def screenshot():
     cv2.imwrite(filename, im2)
     return filename
 
+def check_dialog():
+    internet_connection = detect(Template.INTERNET) or detect(Template.WARNING)
+    if internet_connection is not None:
+        # ok_button = detect(Template.OK)
+        # click(ok_button)
+        refresh_browser()
+        time.sleep(30)
+        setup_view()
+        
+
+
 def detect(template):
     template_img = template.value
     image = cv2.imread(screenshot())
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     threshold = 0.9
-    if template == template.SHOVEL:
+    if template == template.SHOVEL or template == template.CENTER:
         threshold = 0.8
+    elif template == template.WARNING or template == Template.INTERNET:
+        threshold = 1.0
     for file in glob.glob(template_img):
         template_img = cv2.imread(file)
         found = None
@@ -110,7 +128,7 @@ def detect(template):
 
         # draw rectangle
         # (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
-        # if template == template.SHOVEL or template == template.CORN:
+        # if template == template.INTERNET:
         #     cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
         #     cv2.imshow(template.name, image)
         #     cv2.imwrite('output.jpg', image)
@@ -119,7 +137,7 @@ def detect(template):
         
         center = (282+startX + tW//2, 214+startY + tH//2)
         
-        if found[2] > threshold:
+        if found[2] >= threshold:
             print(f"{datetime.now().strftime('%x %X')}::{template.name}::Center: {center}, Factor: {found[2]}")
             return center
         else:
@@ -127,6 +145,7 @@ def detect(template):
             return None
 
 def play():
+    check_dialog()
     if center():
         collect_coins()
         farm()
@@ -140,12 +159,50 @@ def alttab():
     time.sleep(1)
     pyautogui.keyUp('alt')
 
+def toggle_browser_console():
+    pyautogui.keyDown('ctrl')
+    time.sleep(.2)
+    pyautogui.keyDown('shift')
+    time.sleep(.2)
+    pyautogui.press('J')
+    pyautogui.keyUp('shift')
+    pyautogui.keyUp('ctrl')
+
+def setup_view():
+    toggle_browser_console()
+    time.sleep(3)
+    pyautogui.write('document.documentElement.scrollTop = 296', interval=0.02)
+    pyautogui.press('enter')
+    toggle_browser_console()
+    time.sleep(1)
+    click(INSIDE_PLAY_AREA)
+    time.sleep(1)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+    pyautogui.scroll(-500)
+
+def refresh_browser():
+    pyautogui.keyDown('ctrl')
+    time.sleep(.2)
+    pyautogui.keyDown('shift')
+    time.sleep(.2)
+    pyautogui.press('R')
+    pyautogui.keyUp('shift')
+    pyautogui.keyUp('ctrl')
+    
+
 while(True):
     play()
     alttab()
     play()
     alttab()
     print(f"{datetime.now().strftime('%x %X')}::Resuming in {(datetime.now() + timedelta(seconds=50)).strftime('%x %X')}")
+    
     time.sleep(10)
     # break
 
