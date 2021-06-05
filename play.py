@@ -5,8 +5,6 @@ import numpy as np
 from datetime import datetime  
 from datetime import timedelta
 
-from pymsgbox import WARNING 
-
 PLAY_AREA=(282, 214, 1388, 798)
 OUTSIDE_PLAY_AREA=(277, 638)
 INSIDE_PLAY_AREA=(364, 953)
