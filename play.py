@@ -66,14 +66,13 @@ def farm():
             click(harvest)
     farm = detect(Template.FARM)
     if farm is not None:
-        print(f"farm: {farm}")
         click(farm)
         crop = detect(Template.CORN)
         if crop is not None:
             for i in range(NUMBER_OF_PLOT):
                 click((crop[0], crop[1] + 120))
                 time.sleep(0.2)
-    time.sleep(2)
+    time.sleep(3)
 
 def screenshot():
     time.sleep(2)
@@ -99,7 +98,9 @@ def detect(template):
     image = cv2.imread(screenshot())
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     threshold = 0.9
-    if template == template.SHOVEL or template == template.CENTER:
+    if template == template.HARVEST:
+        threshold = 0.6
+    elif template == template.SHOVEL or template == template.CENTER or template == Template.FARM:
         threshold = 0.8
     elif template == template.WARNING or template == Template.INTERNET:
         threshold = 1.0
@@ -125,13 +126,13 @@ def detect(template):
         (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
 
         # draw rectangle
-        # (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
-        # if template == template.INTERNET:
-        #     cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
-        #     cv2.imshow(template.name, image)
-        #     cv2.imwrite('output.jpg', image)
-        #     cv2.waitKey(0)
-        #     cv2.destroyAllWindows()
+        #(endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
+        #if template == template.HARVEST:
+        #    cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
+        #    cv2.imshow(template.name, image)
+        #    cv2.imwrite('output.jpg', image)
+        #    cv2.waitKey(0)
+        #    cv2.destroyAllWindows()
         
         center = (282+startX + tW//2, 214+startY + tH//2)
         
@@ -150,11 +151,14 @@ def play():
         click(INSIDE_PLAY_AREA)
         click(OUTSIDE_PLAY_AREA)
 
-def alttab():
+def alttab(first = False):
+    print(f"first: {first}")
     pyautogui.keyDown('alt')
     time.sleep(.2)
     pyautogui.press('tab')
-    time.sleep(1)
+    if first:
+        time.sleep(.2)
+        pyautogui.press('tab')
     pyautogui.keyUp('alt')
 
 def toggle_browser_console():
@@ -193,8 +197,12 @@ def refresh_browser():
     pyautogui.keyUp('shift')
     pyautogui.keyUp('ctrl')
     
-
+first = True
 while(True):
+    if first:
+        alttab()
+        alttab(first)
+        first = False
     play()
     alttab()
     play()
